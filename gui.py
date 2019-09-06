@@ -35,6 +35,6 @@ class Application(tk.Frame):
         self.quitButton.pack(side="bottom")
 
     def launch_main_menu(self):
-        print("next windnow")
+        print("next windnppow")
 
 
