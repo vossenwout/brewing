@@ -1,29 +1,40 @@
 import tkinter as tk
 
-root = tk.Tk()
+# application is a frame which 2 stacked frames (bottom and top frame), master is the window for the frames
+class Application(tk.Frame):
+    def __init__(self, master=None):
 
-topframe = tk.Frame(root)
-topframe.pack()
+        # setting up the master window
+        super().__init__(master)
+        self.master = master
+        self.masterWindow_setup()
 
-bottemframe = tk.Frame(root)
-bottemframe.pack(side = tk.BOTTOM)
+        # creating frames on top of master window
+        self.topFrame = tk.Frame(master)
+        self.topFrame.pack()
 
+        self.botFrame = tk.Frame(master)
+        self.botFrame.pack(side="bottom")
 
+        # creating the widgets
+        self.create_widgets()
 
-greenbutton = tk.Button(bottemframe, text="green", fg="green")
-greenbutton.pack(side= tk.RIGHT)
-
-
-redbutton = tk.Button(topframe, text="red", fg="red")
-redbutton.pack(side= tk.LEFT)
-
-
-bluebotton = tk.Button(topframe, text="blue", fg="blue")
-bluebotton.pack(side= tk.LEFT)
-
-
-
+    def masterWindow_setup(self):
+        self.master.title("Brew Master 1.0")
+        self.master.minsize(500, 500)
+        self.pack()
 
 
-# main loop
-root.mainloop()
+    def create_widgets(self):
+        self.launchButton = tk.Button(self.botFrame, text="LAUNCH BREWMASTER", width=25,
+                                      command = self.launch_main_menu)
+
+        self.launchButton.pack(side="top")
+        self.quitButton = tk.Button(self.botFrame, text="QUIT", width=25, fg="red"
+                                                    ,command=self.master.destroy)
+        self.quitButton.pack(side="bottom")
+
+    def launch_main_menu(self):
+        print("next windnow")
+
+
