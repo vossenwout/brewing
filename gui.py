@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from PIL import ImageTk, Image
 import os
 
@@ -168,7 +169,7 @@ class RecipesMenu(tk.Frame):
             recipeNames.append(base)
         return recipeNames
 
-     # used to update the list of recipes in the listbox
+     # used to update the list of recipes in the listbox, also updates the recipe dictionary
     def updateRecipeListBox(self):
         self.recipeNames = tk.StringVar(value=self.getRecipeNames())
         self.listbox = tk.Listbox(self.leftFrame, listvariable=self.recipeNames)
@@ -180,11 +181,13 @@ class RecipesMenu(tk.Frame):
         self.listbox =tk.Listbox(self.leftFrame, listvariable=self.recipeNames)
         self.listbox.grid(row=0,column=0)
         readRecipeButton = tk.Button(self.leftFrame, text="READ", command=self.readRecipe)
-        readRecipeButton.grid(row=1, column=0)
+        readRecipeButton.grid(row=1, column=1)
         editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
-        editRecipeButton.grid(row=1, column=1)
-        editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
-        editRecipeButton.grid(row=1, column=1)
+        editRecipeButton.grid(row=1, column=2)
+        editRecipeButton = tk.Button(self.leftFrame, text="NEW", command=self.newRecipe)
+        editRecipeButton.grid(row=1, column=3)
+        deleteRecipeButton = tk.Button(self.leftFrame, text="DELETE", command=self.deleteRecipe)
+        deleteRecipeButton.grid(row=1, column=4)
 
 
     # creates the recipe entry on the right side
@@ -260,4 +263,12 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
 
+    def deleteRecipe(self):
+        MsgBox = tk.messagebox.askquestion('Delete recipe', 'Are you sure you want to delete this recipe',
+                                           icon='warning')
+        if MsgBox == 'yes':
+            os.remove(self.boxPathDict.get(self.listbox.curselection()[0]))
+            self.updateRecipeListBox()
+        else:
+            return
 
