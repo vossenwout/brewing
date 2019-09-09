@@ -188,6 +188,10 @@ class RecipesMenu(tk.Frame):
         editRecipeButton.grid(row=1, column=3)
         deleteRecipeButton = tk.Button(self.leftFrame, text="DELETE", command=self.deleteRecipe)
         deleteRecipeButton.grid(row=1, column=4)
+        recipeScrollbar = tk.Scrollbar(self.leftFrame, orient="vertical")
+        recipeScrollbar.grid(row=0,column=1,sticky='ns')
+        recipeScrollbar.configure(command= self.listbox.yview)
+        self.listbox.configure(yscrollcommand=recipeScrollbar.set)
 
 
     # creates the recipe entry on the right side
@@ -264,8 +268,7 @@ class RecipesMenu(tk.Frame):
         self.beernameEntry.delete(0, tk.END)
 
     def deleteRecipe(self):
-        MsgBox = tk.messagebox.askquestion('Delete recipe', 'Are you sure you want to delete this recipe',
-                                           icon='warning')
+        MsgBox = tk.messagebox.askquestion('Delete recipe', 'Are you sure you want to delete this recipe', icon='warning')
         if MsgBox == 'yes':
             os.remove(self.boxPathDict.get(self.listbox.curselection()[0]))
             self.updateRecipeListBox()
