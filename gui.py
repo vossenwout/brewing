@@ -1,6 +1,6 @@
 import tkinter as tk
 from PIL import ImageTk, Image
-
+import os
 # application is a frame which 2 stacked frames (bottom and top frame), master is the window for the frames
 ############################################################################################################################
 class WelcomeScreen(tk.Frame):
@@ -138,15 +138,22 @@ class RecipesMenu(tk.Frame):
         self.rightFrame = tk.Frame(master, bd=2 ,relief="sunken")
         self.rightFrame.pack(side="right")
 
-        self.create_widgets_right()
 
         # creating the widgets
-
+        self.create_widgets_right()
         self.create_widgets_left()
 
-    def create_widgets_left(self):
-        self.recipesButton = tk.Button(self.leftFrame, text="RECIPES", width=25)
+        # list of all recipes in recipe directory
+        recipeNames = os.listdir("recipes")
 
+
+
+    # creates the scoll recipe menu on the left side
+    def create_widgets_left(self):
+        self.listbox =tk.Listbox(self.leftFrame)
+
+
+    # creates the recipe entry on the right side
     def create_widgets_right(self):
         # creating input for the recipetext
 
