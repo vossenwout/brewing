@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 import os
+
 # application is a frame which 2 stacked frames (bottom and top frame), master is the window for the frames
 ############################################################################################################################
 class WelcomeScreen(tk.Frame):
@@ -182,6 +183,8 @@ class RecipesMenu(tk.Frame):
         readRecipeButton.grid(row=1, column=0)
         editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
         editRecipeButton.grid(row=1, column=1)
+        editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
+        editRecipeButton.grid(row=1, column=1)
 
 
     # creates the recipe entry on the right side
@@ -195,7 +198,7 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo = tk.Text(self.rightFrame)
         self.beerBrewingRecipeInfo.grid(row=1, column=0)
 
-        recipeSubmitButton = tk.Button(self.rightFrame, text="SUBMT", width=25, command=self.create_new_recipe_to_file)
+        recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
         recipeSubmitButton.grid(row=2, column=0)
 
 
@@ -207,13 +210,16 @@ class RecipesMenu(tk.Frame):
     # creates a new recipe from input in textbox beerBrewingRecipe and beerNameEntry and saves it to textfile in recipes
     # to file with same name is beerName
 
-    def create_new_recipe_to_file(self):
+    def save_recipe_to_file(self):
         pathname = 'recipes/' + self.beername.get() + '.txt'
-        file = file=open(pathname, 'w')
+        file=open(pathname, 'w')
         file.write(self.retrieve_beerBrewingInfo())
         file.close()
         # update the listbox Options to create new recipe
         self.updateRecipeListBox()
+        self.beerBrewingRecipeInfo.configure(state='disabled')
+        self.beernameEntry.configure(state='disabled')
+
 
     # opens the recipe for reading only
     def readRecipe(self):
@@ -239,18 +245,19 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
 
+        try:
+            pathname = self.boxPathDict.get(self.listbox.curselection()[0])
+        except:
+            return
 
-        pathname = self.boxPathDict.get(self.listbox.curselection()[0])
         with open(pathname, 'r') as f:
             self.beerBrewingRecipeInfo.insert(1.0, f.read())
             self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
-        recipeSaveButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.saveRecipe(pathname))
-        recipeSaveButton.grid(row=2, column=1)
 
-    # saves the recipe to the given filepath
-    def saveRecipe(self, filePath):
-        file = file = open(filePath, 'w')
-        file.write(self.retrieve_beerBrewingInfo())
-        file.close()
+    def newRecipe(self):
+        self.beernameEntry.configure(state='normal')
+        self.beerBrewingRecipeInfo.configure(state='normal')
+        self.beerBrewingRecipeInfo.delete('1.0', tk.END)
+        self.beernameEntry.delete(0, tk.END)
 
 
