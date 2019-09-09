@@ -178,11 +178,10 @@ class RecipesMenu(tk.Frame):
     def create_widgets_left(self):
         self.listbox =tk.Listbox(self.leftFrame, listvariable=self.recipeNames)
         self.listbox.grid(row=0,column=0)
-        recipeSubmitButton = tk.Button(self.leftFrame, text="OPEN", command=self.pollListboxSelection())
-        recipeSubmitButton.grid(row=1, column=0)
-
-    def pollListboxSelection(self):
-        print(self.listbox.curselection())
+        readRecipeButton = tk.Button(self.leftFrame, text="READ", command=self.readRecipe)
+        readRecipeButton.grid(row=1, column=0)
+        editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
+        editRecipeButton.grid(row=1, column=1)
 
 
     # creates the recipe entry on the right side
@@ -213,4 +212,45 @@ class RecipesMenu(tk.Frame):
         file = file=open(pathname, 'w')
         file.write(self.retrieve_beerBrewingInfo())
         file.close()
+        # update the listbox Options to create new recipe
         self.updateRecipeListBox()
+
+    # opens the recipe for reading only
+    def readRecipe(self):
+        # clear and set recipe field to read only
+        self.beerBrewingRecipeInfo.configure(state='normal')
+        self.beerBrewingRecipeInfo.delete('1.0', tk.END)
+        # clear and set recipe name to read only
+        self.beernameEntry.configure(state='normal')
+        self.beernameEntry.delete(0, tk.END)
+
+        with open(self.boxPathDict.get(self.listbox.curselection()[0]), 'r') as f:
+            self.beerBrewingRecipeInfo.insert(1.0, f.read())
+            self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
+        self.beerBrewingRecipeInfo.configure(state='disabled')
+        self.beernameEntry.configure(state='disabled')
+
+    # opens the recipe for editing
+    def editRecipe(self):
+        # clears recipe
+
+        self.beernameEntry.configure(state='normal')
+        self.beerBrewingRecipeInfo.configure(state='normal')
+        self.beerBrewingRecipeInfo.delete('1.0', tk.END)
+        self.beernameEntry.delete(0, tk.END)
+
+
+        pathname = self.boxPathDict.get(self.listbox.curselection()[0])
+        with open(pathname, 'r') as f:
+            self.beerBrewingRecipeInfo.insert(1.0, f.read())
+            self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
+        recipeSaveButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.saveRecipe(pathname))
+        recipeSaveButton.grid(row=2, column=1)
+
+    # saves the recipe to the given filepath
+    def saveRecipe(self, filePath):
+        file = file = open(filePath, 'w')
+        file.write(self.retrieve_beerBrewingInfo())
+        file.close()
+
+
