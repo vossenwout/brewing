@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from PIL import ImageTk, Image
+from itertools import islice
 import os
 
 # application is a frame which 2 stacked frames (bottom and top frame), master is the window for the frames
@@ -131,7 +132,7 @@ class RecipesMenu(tk.Frame):
         # setting up the master window
         super().__init__(master)
         self.master = master
-        self.master.minsize(1000, 950)
+        self.master.minsize(800, 600)
         # setting up the frames
 
         self.leftFrame = tk.Frame(master)
@@ -151,6 +152,8 @@ class RecipesMenu(tk.Frame):
         # creating the widgets
         self.create_widgets_right()
         self.create_widgets_left()
+
+
 
     # listboxIndex -> Recipe path Dictionary
     def updateListboxRecipePathDictionary(self):
@@ -200,13 +203,18 @@ class RecipesMenu(tk.Frame):
 
         self.beername = tk.StringVar()
         self.beernameEntry = tk.Entry(self.rightFrame, textvariable=self.beername)
-        self.beernameEntry.grid(row=0,column=0)
+        self.beernameEntry.grid(row=1,column=0)
 
         self.beerBrewingRecipeInfo = tk.Text(self.rightFrame)
-        self.beerBrewingRecipeInfo.grid(row=1, column=0)
+        self.beerBrewingRecipeInfo.grid(row=2, column=0)
 
         recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
-        recipeSubmitButton.grid(row=2, column=0)
+        recipeSubmitButton.grid(row=3, column=0)
+
+        recipeSubmitButton = tk.Button(self.rightFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
+        recipeSubmitButton.grid(row=0, column=1)
+
+        self.open_image()
 
 
     # returns all text from the user input beerbrew info
@@ -238,7 +246,9 @@ class RecipesMenu(tk.Frame):
         self.beernameEntry.delete(0, tk.END)
 
         with open(self.boxPathDict.get(self.listbox.curselection()[0]), 'r') as f:
-            self.beerBrewingRecipeInfo.insert(1.0, f.read())
+            for line in islice(f, 1, None):
+            # self.beerBrewingRecipeInfo.insert(1.0, f.read())
+                self.beerBrewingRecipeInfo.insert(1.0,line)
             self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
         self.beerBrewingRecipeInfo.configure(state='disabled')
         self.beernameEntry.configure(state='disabled')
@@ -275,3 +285,19 @@ class RecipesMenu(tk.Frame):
         else:
             return
 
+  # image for beerRecipe
+    def open_image(self):
+        path = "images/brewimage.jpg"
+        self.beerImage = Image.open(path)
+        self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(self.beerImage)
+
+        self.userBeerImage = tk.Label(self.rightFrame, image=self.img)
+        self.userBeerImage.image =self.img
+        self.userBeerImage.grid(row=0, column=0)
+    # TODO schrijf image path als eerst line in recept als recept bestaat anders vraag om eerst recept aan te maken
+    def uploadBeerImage(self):
+        self.beerFileName = filedialog.askopenfile(initialdir = "/", title="Select an image", filetypes =[('all files', '.*'),
+               ('text files', '.txt'),
+               ('image files', ('.png', '.jpg')),
+           ])
