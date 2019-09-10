@@ -208,13 +208,16 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo = tk.Text(self.rightFrame)
         self.beerBrewingRecipeInfo.grid(row=2, column=0)
 
-        recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
-        recipeSubmitButton.grid(row=3, column=0)
+        self.recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
+        self.recipeSubmitButton.grid(row=3, column=0)
 
-        recipeSubmitButton = tk.Button(self.rightFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
-        recipeSubmitButton.grid(row=0, column=1)
+        self.uploadImageButton = tk.Button(self.rightFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
+        self.uploadImageButton.grid(row=0, column=1)
 
-        self.open_image()
+        self.uploadImageButton.configure(state='disabled')
+        self.recipeSubmitButton.configure(state='disabled')
+
+
 
 
     # returns all text from the user input beerbrew info
@@ -227,6 +230,9 @@ class RecipesMenu(tk.Frame):
 
     def save_recipe_to_file(self):
         pathname = 'recipes/' + self.beername.get() + '.txt'
+        if(pathname == 'recipes/.txt'):
+            MsgBox = tk.messagebox.showinfo('Recipe name', 'Please fill in recipe name before saving recipe')
+            return
 
         # the text already in the file
         if(os.path.exists(pathname)):
@@ -262,6 +268,11 @@ class RecipesMenu(tk.Frame):
         self.updateRecipeListBox()
         self.beerBrewingRecipeInfo.configure(state='disabled')
         self.beernameEntry.configure(state='disabled')
+        self.uploadImageButton.configure(state='disabled')
+        self.recipeSubmitButton.configure(state='disabled')
+
+
+
 
 
     # opens the recipe for reading only
@@ -272,6 +283,9 @@ class RecipesMenu(tk.Frame):
         # clear and set recipe name to read only
         self.beernameEntry.configure(state='normal')
         self.beernameEntry.delete(0, tk.END)
+
+
+
 
 
         with open(self.boxPathDict.get(self.listbox.curselection()[0]), 'r') as f:
@@ -286,12 +300,16 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo.configure(state='disabled')
         self.beernameEntry.configure(state='disabled')
 
+        self.open_custom_image()
+
     # opens the recipe for editing
     def editRecipe(self):
         # clears recipe
 
         self.beernameEntry.configure(state='normal')
         self.beerBrewingRecipeInfo.configure(state='normal')
+        self.uploadImageButton.configure(state='normal')
+        self.recipeSubmitButton.configure(state='normal')
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
 
@@ -313,8 +331,18 @@ class RecipesMenu(tk.Frame):
     def newRecipe(self):
         self.beernameEntry.configure(state='normal')
         self.beerBrewingRecipeInfo.configure(state='normal')
+        self.uploadImageButton.configure(state='normal')
+        self.recipeSubmitButton.configure(state='normal')
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
+
+        self.beerImage = Image.open('images/nobeerimage.jpg')
+        self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(self.beerImage)
+
+        self.userBeerImage = tk.Label(self.rightFrame, image=self.img)
+        self.userBeerImage.image = self.img
+        self.userBeerImage.grid(row=0, column=0)
 
     def deleteRecipe(self):
         MsgBox = tk.messagebox.askquestion('Delete recipe', 'Are you sure you want to delete this recipe', icon='warning')
@@ -325,9 +353,13 @@ class RecipesMenu(tk.Frame):
             return
 
   # image for beerRecipe
-    def open_image(self):
-        path = "images/brewimage.jpg"
-        self.beerImage = Image.open(path)
+    def open_custom_image(self):
+        pathname = 'recipes/' + self.beername.get() + '.txt'
+        path = self.get_recipefile_subsection(pathname,"FILEIMAGE")
+        try:
+            self.beerImage = Image.open(path)
+        except:
+            self.beerImage = Image.open('images/nobeerimage.jpg')
         self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(self.beerImage)
 
@@ -335,7 +367,9 @@ class RecipesMenu(tk.Frame):
         self.userBeerImage.image =self.img
         self.userBeerImage.grid(row=0, column=0)
 
-    # TODO schrijf image path als eerst line in recept als recept bestaat anders vraag om eerst recept aan te maken
+
+    # schrijft path van custom beer image voor recept naar eerst lijn recept file, if provideede with currect path also
+    # opens that image
     def uploadBeerImage(self):
         if(len(self.beername.get())!=0):
             self.beerImagePath = filedialog.askopenfile(initialdir ="/", title="Select an image", filetypes =[('all files', '.*'),
@@ -343,15 +377,37 @@ class RecipesMenu(tk.Frame):
                                                                                                               ('image files', ('.png', '.jpg')),
                                                                                                               ])
             pathname = 'recipes/' + self.beername.get() + '.txt'
-            self.replace_line_textfile(pathname, 0, "beerimage" + " " +str(self.beerImagePath.name))
+
+            # we schrijven path naar de eerste lijn van het recept text document
+            if (self.textFileContainsSection(pathname, "BEERIMAGE")):
+                self.replace_line_textfile(pathname, 1, str(self.beerImagePath.name) +"\n")
+            else:
+                self.replace_line_textfile(pathname, 0, "BEERIMAGE" + "\n" + str(self.beerImagePath.name) + "\n")
+            self.open_custom_image()
 
         else:
             MsgBox = tk.messagebox.showinfo('Recipe name', 'Please fill in recipe name before uploading image')
             return
 
 
+    # method to check if the text file of the recipe contains a keyword,
+    def textFileContainsSection(self, pathname, word):
+        lines = open(pathname, 'r').readlines()
+        found = False
+        for line in lines:
+            if line.startswith(word):
+                found = True
+        return found
+
+
+    # replaces the file with given filename on the given line with the given text
     def replace_line_textfile(self,file_name, line_num, text):
-        lines = open(file_name, 'r').readlines()
+        try:
+            lines = open(file_name, 'r').readlines()
+
+        except:
+            MsgBox = tk.messagebox.showinfo('No file found', 'Please create file before addinng pictures')
+            return
         if (len(lines)!= 0):
             lines[line_num] = text
             out = open(file_name, 'w')
@@ -361,3 +417,12 @@ class RecipesMenu(tk.Frame):
             out = open(file_name, 'w')
             out.writelines(text)
             out.close()
+        lines = open(file_name, 'r').readlines()
+
+
+    def get_recipefile_subsection(self,file_name,subsection):
+        try:
+            lines = open(file_name, 'r').readlines()
+        except:
+            return
+        return lines[1].rstrip()
