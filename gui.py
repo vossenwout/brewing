@@ -227,9 +227,41 @@ class RecipesMenu(tk.Frame):
 
     def save_recipe_to_file(self):
         pathname = 'recipes/' + self.beername.get() + '.txt'
-        file=open(pathname, 'w')
 
+        # the text already in the file
         textFileLines = open(pathname, 'r').readlines()
+
+        # the new recipe the user has put in
+        newRecipe = self.retrieve_beerBrewingInfo()
+
+        # open the file to which we are going to write the new recipe
+
+        file = open(pathname, 'w')
+        # find which line the recipe begins in the file, BEFORE FOUND copy old recipe file, AFTER FOUND copy new file
+        foundRecipeStartLine = False
+        # finds the start of the recipe marked by STARTRECIPE keyword
+        for i in range(len(textFileLines)):
+            if(textFileLines[i].startswith("STARTRECIPE")):
+                foundRecipeStartLine = True
+            if(foundRecipeStartLine == False):
+                file.write(textFileLines[i])
+        # if the start has been found the new recipe is copied
+        if (foundRecipeStartLine == True):
+            file.write(newRecipe)
+
+        if (foundRecipeStartLine == False or (not str(newRecipe).startswith("STARTRECIPE"))):
+            file.write("STARTRECIPE\n")
+            file.write(newRecipe)
+
+        file.close()
+
+
+
+
+
+
+        """
+        print(textFileLines)
         if (len(textFileLines)!=0):
             if(textFileLines[0].startswith("beerimage")):
                 newTextFile= [textFileLines[0]]
@@ -255,8 +287,7 @@ class RecipesMenu(tk.Frame):
             for string in newTextFile:
                 file.write(string)
             file.close()
-
-
+        """
 
         # update the listbox Options to create new recipe
         self.updateRecipeListBox()
@@ -277,10 +308,11 @@ class RecipesMenu(tk.Frame):
         with open(self.boxPathDict.get(self.listbox.curselection()[0]), 'r') as f:
             recipeStart = False
             for line in islice(f, 0, None):
-                if(str(line).startswith("recipe")):
+                if(str(line).startswith("STARTRECIPE")):
                     recipeStart = True
+                    continue;
                 if(recipeStart):
-                    self.beerBrewingRecipeInfo.insert(1.0,line)
+                    self.beerBrewingRecipeInfo.insert(tk.INSERT,line)
             self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
         self.beerBrewingRecipeInfo.configure(state='disabled')
         self.beernameEntry.configure(state='disabled')
@@ -302,10 +334,11 @@ class RecipesMenu(tk.Frame):
         with open(self.boxPathDict.get(self.listbox.curselection()[0]), 'r') as f:
             recipeStart = False
             for line in islice(f, 0, None):
-                if (str(line).startswith("recipe")):
+                if (str(line).startswith("STARTRECIPE")):
                     recipeStart = True
+                    continue;
                 if (recipeStart):
-                    self.beerBrewingRecipeInfo.insert(1.0, line)
+                    self.beerBrewingRecipeInfo.insert(tk.INSERT, line)
             self.beernameEntry.insert(0, self.getRecipeNames()[self.listbox.curselection()[0]])
 
     def newRecipe(self):
@@ -332,6 +365,7 @@ class RecipesMenu(tk.Frame):
         self.userBeerImage = tk.Label(self.rightFrame, image=self.img)
         self.userBeerImage.image =self.img
         self.userBeerImage.grid(row=0, column=0)
+
     # TODO schrijf image path als eerst line in recept als recept bestaat anders vraag om eerst recept aan te maken
     def uploadBeerImage(self):
         if(len(self.beername.get())!=0):
