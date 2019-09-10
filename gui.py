@@ -229,7 +229,10 @@ class RecipesMenu(tk.Frame):
         pathname = 'recipes/' + self.beername.get() + '.txt'
 
         # the text already in the file
-        textFileLines = open(pathname, 'r').readlines()
+        if(os.path.exists(pathname)):
+            textFileLines = open(pathname, 'r').readlines()
+        else:
+            textFileLines = []
 
         # the new recipe the user has put in
         newRecipe = self.retrieve_beerBrewingInfo()
@@ -246,48 +249,14 @@ class RecipesMenu(tk.Frame):
             if(foundRecipeStartLine == False):
                 file.write(textFileLines[i])
         # if the start has been found the new recipe is copied
-        if (foundRecipeStartLine == True):
-            file.write(newRecipe)
-
-        if (foundRecipeStartLine == False or (not str(newRecipe).startswith("STARTRECIPE"))):
+        # als er nog geen recept was start recept op tweede lijn anders start op dezelfd lijn als eerste recept
+        if(foundRecipeStartLine == False):
+            file.write("\nSTARTRECIPE\n")
+        else:
             file.write("STARTRECIPE\n")
-            file.write(newRecipe)
+        file.write(newRecipe)
 
         file.close()
-
-
-
-
-
-
-        """
-        print(textFileLines)
-        if (len(textFileLines)!=0):
-            if(textFileLines[0].startswith("beerimage")):
-                newTextFile= [textFileLines[0]]
-                newTextFile.append("recipe ")
-                for line in islice(self.retrieve_beerBrewingInfo(), 0, None):
-                    newTextFile.append(line)
-                for string in newTextFile:
-                    file.write(string)
-                file.close()
-            else:
-                newTextFile = []
-                newTextFile.append("recipe ")
-                for line in islice(self.retrieve_beerBrewingInfo(), 0, None):
-                    newTextFile.append(line)
-                for string in newTextFile:
-                    file.write(string)
-                file.close()
-        else:
-            newTextFile = []
-            newTextFile.append("recipe ")
-            for line in islice(self.retrieve_beerBrewingInfo(), 0, None):
-                newTextFile.append(line)
-            for string in newTextFile:
-                file.write(string)
-            file.close()
-        """
 
         # update the listbox Options to create new recipe
         self.updateRecipeListBox()
