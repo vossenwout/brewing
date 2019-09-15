@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 from PIL import ImageTk, Image
 from itertools import islice
+import fnmatch
 import os
+import pickle
 
 # application is a frame which 2 stacked frames (bottom and top frame), master is the window for the frames
 ############################################################################################################################
@@ -132,7 +134,7 @@ class RecipesMenu(tk.Frame):
         # setting up the master window
         super().__init__(master)
         self.master = master
-        self.master.minsize(800, 600)
+        self.master.minsize(1680, 920)
         # setting up the frames
 
         self.leftFrame = tk.Frame(master)
@@ -165,7 +167,7 @@ class RecipesMenu(tk.Frame):
 
     # returns list of all the recipes created in recipes directory
     def getRecipeNames(self):
-        recipeFullNames = os.listdir("recipes")
+        recipeFullNames =  fnmatch.filter(os.listdir("recipes"), '*.txt')
         recipeNames = []
         for fullname in recipeFullNames:
             base, ext = os.path.splitext(fullname)
@@ -201,18 +203,97 @@ class RecipesMenu(tk.Frame):
     def create_widgets_right(self):
         # creating input for the recipetext
 
+        # naam
         self.beername = tk.StringVar()
         self.beernameEntry = tk.Entry(self.rightFrame, textvariable=self.beername)
-        self.beernameEntry.grid(row=1,column=0)
+        self.beernameEntry.grid(row=1,column=1)
+        self.beernamelable = tk.Label(self.rightFrame, text="Recipe Name")
+        self.beernamelable.grid(row=1,column=0)
 
+        # hoeveelheid
+        self.brouwhoeveelheid = tk.StringVar()
+        self.brouwhoeveelheidEntry = tk.Entry(self.rightFrame, textvariable= self.brouwhoeveelheid)
+        self.brouwhoeveelheidEntry.grid(row=2, column=1)
+        self.brouwhoeveelheidlable = tk.Label(self.rightFrame, text="Batch size")
+        self.brouwhoeveelheidlable.grid(row=2, column=0)
+
+        # vergisbare ingredienten
+        self.mout1 = tk.StringVar()
+        self.moutEntry = tk.Entry(self.rightFrame, textvariable=self.mout1)
+        self.moutEntry.grid(row=3, column=1)
+        self.moutlable = tk.Label(self.rightFrame, text="Mout")
+        self.moutlable.grid(row=3, column=0)
+
+        self.mout1Hoeveelheid = tk.StringVar()
+        self.moutHoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=self.mout1Hoeveelheid)
+        self.moutHoeveelheidEntry.grid(row=3, column=3)
+        self.moutHoeveelheidlable = tk.Label(self.rightFrame, text="gram")
+        self.moutHoeveelheidlable.grid(row=3, column=2)
+
+        self.mout2 = tk.StringVar()
+        self.mout2Entry = tk.Entry(self.rightFrame, textvariable=self.mout2)
+        self.mout2Entry.grid(row=4, column=1)
+        self.mout2lable = tk.Label(self.rightFrame, text="Mout 2")
+        self.mout2lable.grid(row=4, column=0)
+
+        self.mout2Hoeveelheid = tk.StringVar()
+        self.mout2HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=self.mout1Hoeveelheid)
+        self.mout2HoeveelheidEntry.grid(row=4, column=3)
+        self.mout2Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
+        self.mout2Hoeveelheidlable.grid(row=4, column=2)
+
+        # hoppen
+        self.hop1 = tk.StringVar()
+        self.hop1Entry = tk.Entry(self.rightFrame, textvariable=self.hop1)
+        self.hop1Entry.grid(row=5, column=1)
+        self.hop1lable = tk.Label(self.rightFrame, text="Hop")
+        self.hop1lable.grid(row=5, column=0)
+
+        self.hop1Hoeveelheid = tk.StringVar()
+        self.hopHoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=self.mout1Hoeveelheid)
+        self.hopHoeveelheidEntry.grid(row=5, column=3)
+        self.hopHoeveelheidlable = tk.Label(self.rightFrame, text="gram")
+        self.hopHoeveelheidlable.grid(row=5, column=2)
+
+        self.hop2 = tk.StringVar()
+        self.hop2Entry = tk.Entry(self.rightFrame, textvariable=self.hop2)
+        self.hop2Entry.grid(row=6, column=1)
+        self.hop2lable = tk.Label(self.rightFrame, text="Hop 2")
+        self.hop2lable.grid(row=6, column=0)
+
+        self.hop2Hoeveelheid = tk.StringVar()
+        self.hop2HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=self.mout1Hoeveelheid)
+        self.hop2HoeveelheidEntry.grid(row=6, column=3)
+        self.hop2Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
+        self.hop2Hoeveelheidlable.grid(row=6, column=2)
+
+
+        self.hop3 = tk.StringVar()
+        self.hop3Entry = tk.Entry(self.rightFrame, textvariable=self.hop3)
+        self.hop3Entry.grid(row=7, column=1)
+        self.hop3lable = tk.Label(self.rightFrame, text="Hop 3")
+        self.hop3lable.grid(row=7, column=0)
+
+        self.hop3Hoeveelheid = tk.StringVar()
+        self.hop3HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=self.mout1Hoeveelheid)
+        self.hop3HoeveelheidEntry.grid(row=7, column=3)
+        self.hop3Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
+        self.hop3Hoeveelheidlable.grid(row=7, column=2)
+
+
+        # algemene recept info
         self.beerBrewingRecipeInfo = tk.Text(self.rightFrame)
-        self.beerBrewingRecipeInfo.grid(row=2, column=0)
+        self.beerBrewingRecipeInfo.grid(row=8, column=1)
+        self.receptlable = tk.Label(self.rightFrame, text="Recept info")
+        self.receptlable.grid(row=8, column=0)
 
         self.recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
-        self.recipeSubmitButton.grid(row=3, column=0)
+        self.recipeSubmitButton.grid(row=9, column=1)
 
         self.uploadImageButton = tk.Button(self.rightFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
-        self.uploadImageButton.grid(row=0, column=1)
+        self.uploadImageButton.grid(row=9, column=0)
+
+
 
         self.uploadImageButton.configure(state='disabled')
         self.recipeSubmitButton.configure(state='disabled')
@@ -263,6 +344,20 @@ class RecipesMenu(tk.Frame):
         file.write(newRecipe)
 
         file.close()
+
+
+        # we store the recipe general info and link to the picture in the txt file with the same name as the recipe
+        # we store ingredient info in a pickle file with the same name as the recipe
+
+
+        my_data = {'foo': 'bar'}
+        with open('recipes/' + self.beername.get(), 'wb') as handle:
+            pickle.dump(my_data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        #with open('receptdata.pickle', 'rb') as handle:
+        #    unserialized_data = pickle.load(handle)
+
+       # print(my_data == unserialized_data)
 
         # update the listbox Options to create new recipe
         self.updateRecipeListBox()
@@ -347,8 +442,17 @@ class RecipesMenu(tk.Frame):
     def deleteRecipe(self):
         MsgBox = tk.messagebox.askquestion('Delete recipe', 'Are you sure you want to delete this recipe', icon='warning')
         if MsgBox == 'yes':
-            os.remove(self.boxPathDict.get(self.listbox.curselection()[0]))
+            textFile = self.boxPathDict.get(self.listbox.curselection()[0])
+            os.remove(textFile)
+            pickleFile = str(textFile).replace('.txt',"")
+            os.remove(pickleFile)
             self.updateRecipeListBox()
+            self.beernameEntry.configure(state='normal')
+            self.beerBrewingRecipeInfo.configure(state='normal')
+            self.beerBrewingRecipeInfo.delete('1.0', tk.END)
+            self.beernameEntry.delete(0, tk.END)
+            self.beernameEntry.configure(state='disabled')
+            self.beerBrewingRecipeInfo.configure(state='disabled')
         else:
             return
 
