@@ -138,11 +138,24 @@ class RecipesMenu(tk.Frame):
         self.master.resizable(True, True)
         # setting up the frames
 
-        self.leftFrame = tk.Frame(master)
-        self.leftFrame.pack(side="left")
 
-        self.rightFrame = tk.Frame(master, bd=2 ,relief="sunken")
-        self.rightFrame.pack(side="right")
+        #self.topRightFrame = tk.Frame(master)
+        #self.topRightFrame.pack(side="top")
+
+        self.topLeftFrame = tk.Frame(master)
+        self.topLeftFrame.pack(side="top", fill=tk.X)
+
+
+
+
+        self.botLeftFrame = tk.Frame(master, bd=2, relief="sunken")
+        self.botLeftFrame.pack(side="left", fill=tk.Y)
+
+
+
+        self.rightBotFrame = tk.Frame(master, bd= 2,relief="sunken")
+        self.rightBotFrame.pack(side="left")
+
 
 
         # list of all recipes in recipe directory
@@ -155,6 +168,7 @@ class RecipesMenu(tk.Frame):
         # creating the widgets
         self.create_widgets_right()
         self.create_widgets_left()
+        self.create_widgets_topRight()
         self.makeRecipeInactive()
 
 
@@ -179,24 +193,28 @@ class RecipesMenu(tk.Frame):
      # used to update the list of recipes in the listbox, also updates the recipe dictionary
     def updateRecipeListBox(self):
         self.recipeNames = tk.StringVar(value=self.getRecipeNames())
-        self.listbox = tk.Listbox(self.leftFrame, listvariable=self.recipeNames)
+        self.listbox = tk.Listbox(self.topLeftFrame, listvariable=self.recipeNames)
         self.listbox.grid(row=0, column=0)
         self.updateListboxRecipePathDictionary()
 
-    # creates the scoll recipe menu on the left side
+    def create_widgets_topRight(self):
+        readRecipeButton = tk.Button(self.topRightFrame, text="READ", command=self.readRecipe)
+        readRecipeButton.pack()
+
+    # creates the scoll recipe menu on the left side ACTUALLY TOP SIDE NOW
     def create_widgets_left(self):
-        self.listbox =tk.Listbox(self.leftFrame, listvariable=self.recipeNames)
-        self.listbox.grid(row=0,column=0)
-        readRecipeButton = tk.Button(self.leftFrame, text="READ", command=self.readRecipe)
-        readRecipeButton.grid(row=1, column=1)
-        editRecipeButton = tk.Button(self.leftFrame, text="EDIT", command=self.editRecipe)
-        editRecipeButton.grid(row=1, column=2)
-        editRecipeButton = tk.Button(self.leftFrame, text="NEW", command=self.newRecipe)
+        self.listbox =tk.Listbox(self.topLeftFrame, listvariable=self.recipeNames)
+        self.listbox.grid(row=0,column=0,columnspan=6,pady=5)
+        readRecipeButton = tk.Button(self.topLeftFrame, text="READ", command=self.readRecipe)
+        readRecipeButton.grid(row=1, column=2,padx=0)
+        editRecipeButton = tk.Button(self.topLeftFrame, text="EDIT", command=self.editRecipe)
         editRecipeButton.grid(row=1, column=3)
-        deleteRecipeButton = tk.Button(self.leftFrame, text="DELETE", command=self.deleteRecipe)
-        deleteRecipeButton.grid(row=1, column=4)
-        recipeScrollbar = tk.Scrollbar(self.leftFrame, orient="vertical")
-        recipeScrollbar.grid(row=0,column=1,sticky='ns')
+        editRecipeButton = tk.Button(self.topLeftFrame, text="NEW", command=self.newRecipe)
+        editRecipeButton.grid(row=1, column=4)
+        deleteRecipeButton = tk.Button(self.topLeftFrame, text="DELETE", command=self.deleteRecipe)
+        deleteRecipeButton.grid(row=1, column=5)
+        recipeScrollbar = tk.Scrollbar(self.topLeftFrame, orient="vertical")
+        recipeScrollbar.grid(row=0,column=6,sticky='ns')
         recipeScrollbar.configure(command= self.listbox.yview)
         self.listbox.configure(yscrollcommand=recipeScrollbar.set)
 
@@ -207,16 +225,16 @@ class RecipesMenu(tk.Frame):
 
         # naam
         self.beername = tk.StringVar()
-        self.beernameEntry = tk.Entry(self.rightFrame, textvariable=self.beername)
-        self.beernameEntry.grid(row=1,column=1)
-        self.beernamelable = tk.Label(self.rightFrame, text="Recipe Name")
+        self.beernameEntry = tk.Entry(self.botLeftFrame, textvariable=self.beername)
+        self.beernameEntry.grid(row=1,column=1, sticky="W")
+        self.beernamelable = tk.Label(self.botLeftFrame, text="Recipe Name")
         self.beernamelable.grid(row=1,column=0)
 
         # hoeveelheid
         self.brouwhoeveelheid = tk.StringVar()
-        self.brouwhoeveelheidEntry = tk.Entry(self.rightFrame, textvariable= self.brouwhoeveelheid)
-        self.brouwhoeveelheidEntry.grid(row=2, column=1)
-        self.brouwhoeveelheidlable = tk.Label(self.rightFrame, text="Batch size")
+        self.brouwhoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable= self.brouwhoeveelheid)
+        self.brouwhoeveelheidEntry.grid(row=2, column=1, sticky="W")
+        self.brouwhoeveelheidlable = tk.Label(self.botLeftFrame, text="Batch size")
         self.brouwhoeveelheidlable.grid(row=2, column=0)
 
         # vergisbare ingredienten
@@ -230,15 +248,15 @@ class RecipesMenu(tk.Frame):
         self.mout1paar = (self.mout1, self.mout1Hoeveelheid)
         self.moutlijstMetGrammen.append(self.mout1paar)
 
-        self.mout1Entry = tk.Entry(self.rightFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[0])
-        self.mout1Entry.grid(row=3, column=1)
-        self.mout1lable = tk.Label(self.rightFrame, text="Mout")
+        self.mout1Entry = tk.Entry(self.botLeftFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[0])
+        self.mout1Entry.grid(row=3, column=1, sticky="W")
+        self.mout1lable = tk.Label(self.botLeftFrame, text="Mout")
         self.mout1lable.grid(row=3, column=0)
 
-        self.mout1HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[1])
-        self.mout1HoeveelheidEntry.grid(row=3, column=3)
-        self.mout1Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
-        self.mout1Hoeveelheidlable.grid(row=3, column=2)
+        self.mout1HoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[1])
+        self.mout1HoeveelheidEntry.grid(row=3, column=2)
+        self.mout1Hoeveelheidlable = tk.Label(self.botLeftFrame, text="gram")
+        self.mout1Hoeveelheidlable.grid(row=2, column=2, sticky="W")
 
         aantalMouten += 1
 
@@ -247,15 +265,13 @@ class RecipesMenu(tk.Frame):
         self.mout2paar = (self.mout2, self.mout2Hoeveelheid)
         self.moutlijstMetGrammen.append(self.mout2paar)
 
-        self.mout2Entry = tk.Entry(self.rightFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[0])
-        self.mout2Entry.grid(row=4, column=1)
-        self.mout2lable = tk.Label(self.rightFrame, text="Mout 2")
+        self.mout2Entry = tk.Entry(self.botLeftFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[0])
+        self.mout2Entry.grid(row=4, column=1, sticky="W")
+        self.mout2lable = tk.Label(self.botLeftFrame, text="Mout 2")
         self.mout2lable.grid(row=4, column=0)
 
-        self.mout2HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[1])
-        self.mout2HoeveelheidEntry.grid(row=4, column=3)
-        self.mout2Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
-        self.mout2Hoeveelheidlable.grid(row=4, column=2)
+        self.mout2HoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable=(self.moutlijstMetGrammen[aantalMouten])[1])
+        self.mout2HoeveelheidEntry.grid(row=4, column=2, sticky="W")
 
         # gisten
         self.gistlijstMetGrammen = []
@@ -267,15 +283,13 @@ class RecipesMenu(tk.Frame):
         self.gist1paar = (self.gist1, self.gist1Hoeveelheid)
         self.gistlijstMetGrammen.append(self.gist1paar)
 
-        self.gist1Entry = tk.Entry(self.rightFrame, textvariable=(self.gistlijstMetGrammen[aantalGisten])[0])
-        self.gist1Entry.grid(row=5, column=1)
-        self.gist1lable = tk.Label(self.rightFrame, text="Gist")
+        self.gist1Entry = tk.Entry(self.botLeftFrame, textvariable=(self.gistlijstMetGrammen[aantalGisten])[0])
+        self.gist1Entry.grid(row=5, column=1, sticky="W")
+        self.gist1lable = tk.Label(self.botLeftFrame, text="Gist")
         self.gist1lable.grid(row=5, column=0)
 
-        self.gist1HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=(self.gistlijstMetGrammen[aantalGisten])[1])
-        self.gist1HoeveelheidEntry.grid(row=5, column=3)
-        self.gist1Hoeveelheidlable = tk.Label(self.rightFrame, text="Gist")
-        self.gist1Hoeveelheidlable.grid(row=5, column=2)
+        self.gist1HoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable=(self.gistlijstMetGrammen[aantalGisten])[1])
+        self.gist1HoeveelheidEntry.grid(row=5, column=2, sticky="W")
 
         # hoppen
         self.hoplijstMetGrammen = []
@@ -288,16 +302,13 @@ class RecipesMenu(tk.Frame):
         self.hop1paar = (self.hop1, self.hop1Hoeveelheid)
         self.hoplijstMetGrammen.append(self.hop1paar)
 
-        self.hop1Entry = tk.Entry(self.rightFrame, textvariable= (self.hoplijstMetGrammen[aantalHoppen])[0])
-        self.hop1Entry.grid(row=6, column=1)
-        self.hop1lable = tk.Label(self.rightFrame, text="Hop")
+        self.hop1Entry = tk.Entry(self.botLeftFrame, textvariable= (self.hoplijstMetGrammen[aantalHoppen])[0])
+        self.hop1Entry.grid(row=6, column=1, sticky="W")
+        self.hop1lable = tk.Label(self.botLeftFrame, text="Hop")
         self.hop1lable.grid(row=6, column=0)
 
-        self.hopHoeveelheidEntry = tk.Entry(self.rightFrame, textvariable= (self.hoplijstMetGrammen[aantalHoppen])[1])
-        self.hopHoeveelheidEntry.grid(row=6, column=3)
-        self.hopHoeveelheidlable = tk.Label(self.rightFrame, text="gram")
-        self.hopHoeveelheidlable.grid(row=6, column=2)
-
+        self.hopHoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable= (self.hoplijstMetGrammen[aantalHoppen])[1])
+        self.hopHoeveelheidEntry.grid(row=6, column=2, sticky="W")
         aantalHoppen += 1
 
         self.hop2 = tk.StringVar()
@@ -305,15 +316,13 @@ class RecipesMenu(tk.Frame):
         self.hop2paar = (self.hop2, self.hop2Hoeveelheid)
         self.hoplijstMetGrammen.append(self.hop2paar)
 
-        self.hop2Entry = tk.Entry(self.rightFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[0])
-        self.hop2Entry.grid(row=7, column=1)
-        self.hop2lable = tk.Label(self.rightFrame, text="Hop 2")
+        self.hop2Entry = tk.Entry(self.botLeftFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[0])
+        self.hop2Entry.grid(row=7, column=1, sticky="W")
+        self.hop2lable = tk.Label(self.botLeftFrame, text="Hop 2")
         self.hop2lable.grid(row=7, column=0)
 
-        self.hop2HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[1])
-        self.hop2HoeveelheidEntry.grid(row=7, column=3)
-        self.hop2Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
-        self.hop2Hoeveelheidlable.grid(row=7, column=2)
+        self.hop2HoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[1])
+        self.hop2HoeveelheidEntry.grid(row=7, column=2, sticky="W")
 
         aantalHoppen += 1
 
@@ -322,27 +331,25 @@ class RecipesMenu(tk.Frame):
         self.hop3paar = (self.hop3, self.hop3Hoeveelheid)
         self.hoplijstMetGrammen.append(self.hop3paar)
 
-        self.hop3Entry = tk.Entry(self.rightFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[0])
-        self.hop3Entry.grid(row=8, column=1)
-        self.hop3lable = tk.Label(self.rightFrame, text="Hop 3")
+        self.hop3Entry = tk.Entry(self.botLeftFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[0])
+        self.hop3Entry.grid(row=8, column=1, sticky="W")
+        self.hop3lable = tk.Label(self.botLeftFrame, text="Hop 3")
         self.hop3lable.grid(row=8, column=0)
 
-        self.hop3HoeveelheidEntry = tk.Entry(self.rightFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[1])
-        self.hop3HoeveelheidEntry.grid(row=8, column=3)
-        self.hop3Hoeveelheidlable = tk.Label(self.rightFrame, text="gram")
-        self.hop3Hoeveelheidlable.grid(row=8, column=2)
+        self.hop3HoeveelheidEntry = tk.Entry(self.botLeftFrame, textvariable=(self.hoplijstMetGrammen[aantalHoppen])[1])
+        self.hop3HoeveelheidEntry.grid(row=8, column=2, sticky="W")
 
 
         # algemene recept info
-        self.beerBrewingRecipeInfo = tk.Text(self.rightFrame)
-        self.beerBrewingRecipeInfo.grid(row=9, column=1)
-        self.receptlable = tk.Label(self.rightFrame, text="Recept info")
-        self.receptlable.grid(row=9, column=0)
+        self.beerBrewingRecipeInfo = tk.Text(self.rightBotFrame)
+        self.beerBrewingRecipeInfo.grid(row=1, column=0)
+        self.receptlable = tk.Label(self.rightBotFrame, text="Recept info")
+        self.receptlable.grid(row=0, column=0)
 
-        self.recipeSubmitButton = tk.Button(self.rightFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
+        self.recipeSubmitButton = tk.Button(self.botLeftFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
         self.recipeSubmitButton.grid(row=10, column=1)
 
-        self.uploadImageButton = tk.Button(self.rightFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
+        self.uploadImageButton = tk.Button(self.botLeftFrame, text="UPLOAD IMAGE", command=self.uploadBeerImage)
         self.uploadImageButton.grid(row=10, column=0)
 
 
@@ -528,6 +535,8 @@ class RecipesMenu(tk.Frame):
 
         self.open_custom_image()
 
+
+        # get the pickle recipe info and fill it in
         path  = self.boxPathDict.get(self.listbox.curselection()[0])
         base, ext = os.path.splitext(path)
         with open(base + "pickle", 'rb') as handle:
@@ -589,12 +598,12 @@ class RecipesMenu(tk.Frame):
         self.beernameEntry.delete(0, tk.END)
 
         self.beerImage = Image.open('images/nobeerimage.jpg')
-        self.beerImage = self.beerImage.resize((100, 200), Image.ANTIALIAS)
+        self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(self.beerImage)
 
-        self.userBeerImage = tk.Label(self.rightFrame, image=self.img)
+        self.userBeerImage = tk.Label(self.botLeftFrame, image=self.img)
         self.userBeerImage.image = self.img
-        self.userBeerImage.grid(row=9, column=3)
+        self.userBeerImage.grid(row=0, column=1,sticky="e")
 
     # deletes pickle file and the txt file of the recipe
     def deleteRecipe(self):
@@ -625,10 +634,10 @@ class RecipesMenu(tk.Frame):
             self.beerImage = Image.open(path)
         except:
             self.beerImage = Image.open('images/nobeerimage.jpg')
-        self.beerImage = self.beerImage.resize((100, 200), Image.ANTIALIAS)
+        self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(self.beerImage)
 
-        self.userBeerImage = tk.Label(self.rightFrame, image=self.img)
+        self.userBeerImage = tk.Label(self.botLeftFrame, image=self.img)
         self.userBeerImage.image =self.img
         self.userBeerImage.grid(row=9, column=3)
 
