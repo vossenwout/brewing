@@ -143,18 +143,18 @@ class RecipesMenu(tk.Frame):
         #self.topRightFrame.pack(side="top")
 
         self.topLeftFrame = tk.Frame(master)
-        self.topLeftFrame.pack(side="top", fill=tk.X)
+        self.topLeftFrame.pack(side="top", fill=tk.X, expand=True)
 
 
 
 
         self.botLeftFrame = tk.Frame(master, bd=2, relief="sunken")
-        self.botLeftFrame.pack(side="left", fill=tk.Y)
+        self.botLeftFrame.pack(side="left", fill=tk.Y, expand=False)
 
 
 
         self.rightBotFrame = tk.Frame(master, bd= 2,relief="sunken")
-        self.rightBotFrame.pack(side="left")
+        self.rightBotFrame.pack(side="left", expand=False)
 
 
 
@@ -168,7 +168,7 @@ class RecipesMenu(tk.Frame):
         # creating the widgets
         self.create_widgets_right()
         self.create_widgets_left()
-        self.create_widgets_topRight()
+        #self.create_widgets_topRight()
         self.makeRecipeInactive()
 
 
@@ -194,12 +194,12 @@ class RecipesMenu(tk.Frame):
     def updateRecipeListBox(self):
         self.recipeNames = tk.StringVar(value=self.getRecipeNames())
         self.listbox = tk.Listbox(self.topLeftFrame, listvariable=self.recipeNames)
-        self.listbox.grid(row=0, column=0)
+        self.listbox.grid(row=0,column=0,columnspan=6,pady=5)
         self.updateListboxRecipePathDictionary()
 
-    def create_widgets_topRight(self):
-        readRecipeButton = tk.Button(self.topRightFrame, text="READ", command=self.readRecipe)
-        readRecipeButton.pack()
+    #def create_widgets_topRight(self):
+    #    readRecipeButton = tk.Button(self.topLeftFrame, text="READ", command=self.readRecipe)
+    #    readRecipeButton.pack()
 
     # creates the scoll recipe menu on the left side ACTUALLY TOP SIDE NOW
     def create_widgets_left(self):
@@ -214,14 +214,26 @@ class RecipesMenu(tk.Frame):
         deleteRecipeButton = tk.Button(self.topLeftFrame, text="DELETE", command=self.deleteRecipe)
         deleteRecipeButton.grid(row=1, column=5)
         recipeScrollbar = tk.Scrollbar(self.topLeftFrame, orient="vertical")
-        recipeScrollbar.grid(row=0,column=6,sticky='ns')
+        recipeScrollbar.grid(row=0,column=6, sticky='ns')
         recipeScrollbar.configure(command= self.listbox.yview)
         self.listbox.configure(yscrollcommand=recipeScrollbar.set)
+
+        self.beerImage = Image.open('images/nobeerimage.jpg')
+        self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(self.beerImage)
+
+        self.userBeerImage = tk.Label(self.topLeftFrame, image=self.img)
+        self.userBeerImage.image = self.img
+        self.userBeerImage.grid(row=0, column=10, padx=(450, 0))
+
 
 
     # creates the recipe entry on the right side
     def create_widgets_right(self):
         # creating input for the recipetext
+
+
+
 
         # naam
         self.beername = tk.StringVar()
@@ -236,6 +248,11 @@ class RecipesMenu(tk.Frame):
         self.brouwhoeveelheidEntry.grid(row=2, column=1, sticky="W")
         self.brouwhoeveelheidlable = tk.Label(self.botLeftFrame, text="Batch size")
         self.brouwhoeveelheidlable.grid(row=2, column=0)
+
+        # calculate
+
+        self.recipeCalculateButton = tk.Button(self.botLeftFrame, text="Calculate", width=25, command=self.calculateNewSizes)
+        self.recipeCalculateButton.grid(row=11, column=1)
 
         # vergisbare ingredienten
 
@@ -515,6 +532,26 @@ class RecipesMenu(tk.Frame):
         self.gist1HoeveelheidEntry.configure(state='disabled')
         self.beernameEntry.configure(state='disabled')
         self.brouwhoeveelheidEntry.configure(state='disabled')
+        self.recipeCalculateButton.configure(state='disabled')
+    def makeRecipeActive(self):
+        # clear and set recipe field to read only
+        self.beerBrewingRecipeInfo.configure(state='normal')
+        # clear and set recipe name to read only
+        self.beernameEntry.configure(state='normal')
+        self.mout1Entry.configure(state='normal')
+        self.mout1HoeveelheidEntry.configure(state='normal')
+        self.mout2Entry.configure(state='normal')
+        self.mout2HoeveelheidEntry.configure(state='normal')
+        self.hop1Entry.configure(state='normal')
+        self.hopHoeveelheidEntry.configure(state='normal')
+        self.hop2Entry.configure(state='normal')
+        self.hop2HoeveelheidEntry.configure(state='normal')
+        self.hop3Entry.configure(state='normal')
+        self.hop3HoeveelheidEntry.configure(state='normal')
+        self.gist1Entry.configure(state='normal')
+        self.gist1HoeveelheidEntry.configure(state='normal')
+        self.beernameEntry.configure(state='normal')
+        self.brouwhoeveelheidEntry.configure(state='normal')
 
 
     # opens the recipe for reading only
@@ -534,6 +571,7 @@ class RecipesMenu(tk.Frame):
         self.beernameEntry.configure(state='disabled')
 
         self.open_custom_image()
+
 
 
         # get the pickle recipe info and fill it in
@@ -561,6 +599,53 @@ class RecipesMenu(tk.Frame):
         self.gist1HoeveelheidEntry.insert(0,(recept.get("gist")[0])[1])
 
         self.brouwhoeveelheidEntry.insert(0,recept.get("volume"))
+        self.makeRecipeInactive()
+        self.brouwhoeveelheidEntry.configure(state='normal')
+        self.recipeCalculateButton.configure(state='normal')
+        self.recipeSubmitButton.configure(state='disabled')
+
+    def calculateNewSizes(self):
+        self.recipeSubmitButton = tk.Button(self.botLeftFrame, text="SAVE", width=25, command=self.save_recipe_to_file)
+        self.recipeSubmitButton.grid(row=10, column=1)
+
+        pathname = 'recipes/' + self.beername.get()
+
+        beernaam = self.beername.get()
+        with open(pathname + "pickle", 'rb') as handle:
+            recept = pickle.load(handle)
+
+        previous = self.brouwhoeveelheidEntry.get()
+        # open the file to which we are going to write the new recipe
+        scalar = round(int(self.brouwhoeveelheidEntry.get())/int(recept.get("volume")))
+        print(scalar)
+        self.makeRecipeActive()
+
+        self.clearAllRecipeWidgets()
+        self.mout1Entry.insert(0, (recept.get("mout")[0])[0])
+        self.mout1HoeveelheidEntry.insert(0, int((recept.get("mout")[0])[1])*scalar)
+
+        self.mout2Entry.insert(0, (recept.get("mout")[1])[0])
+        self.mout2HoeveelheidEntry.insert(0, int((recept.get("mout")[1])[1])*scalar)
+
+        self.hop1Entry.insert(0, (recept.get("hop")[0])[0])
+        self.hopHoeveelheidEntry.insert(0, int((recept.get("hop")[0])[1])*scalar)
+
+        self.hop2Entry.insert(0, (recept.get("hop")[1])[0])
+        self.hop2HoeveelheidEntry.insert(0, int((recept.get("hop")[1])[1])*scalar)
+
+        self.hop3Entry.insert(0, (recept.get("hop")[2])[0])
+        self.hop3HoeveelheidEntry.insert(0, int((recept.get("hop")[2])[1])*scalar)
+
+        self.gist1Entry.insert(0, (recept.get("gist")[0])[0])
+        self.gist1HoeveelheidEntry.insert(0, int((recept.get("gist")[0])[1])*scalar)
+        self.brouwhoeveelheidEntry.insert(0,previous)
+        self.beernameEntry.insert(0,beernaam)
+        self.makeRecipeInactive()
+        self.recipeSubmitButton.configure(state='disabled')
+        self.recipeCalculateButton.configure(state='normal')
+
+        self.brouwhoeveelheidEntry.configure(state='normal')
+
 
     # opens the recipe for editing
     def editRecipe(self):
@@ -570,8 +655,10 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo.configure(state='normal')
         self.uploadImageButton.configure(state='normal')
         self.recipeSubmitButton.configure(state='normal')
+        self.recipeCalculateButton.configure(state='disabled')
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
+        self.makeRecipeActive()
 
         try:
             pathname = self.boxPathDict.get(self.listbox.curselection()[0])
@@ -594,6 +681,7 @@ class RecipesMenu(tk.Frame):
         self.beerBrewingRecipeInfo.configure(state='normal')
         self.uploadImageButton.configure(state='normal')
         self.recipeSubmitButton.configure(state='normal')
+        self.recipeCalculateButton.configure(state='disabled')
         self.beerBrewingRecipeInfo.delete('1.0', tk.END)
         self.beernameEntry.delete(0, tk.END)
 
@@ -601,9 +689,9 @@ class RecipesMenu(tk.Frame):
         self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(self.beerImage)
 
-        self.userBeerImage = tk.Label(self.botLeftFrame, image=self.img)
+        self.userBeerImage = tk.Label(self.topLeftFrame, image=self.img)
         self.userBeerImage.image = self.img
-        self.userBeerImage.grid(row=0, column=1,sticky="e")
+        self.userBeerImage.grid(row=0, column=10, padx=(450, 0))
 
     # deletes pickle file and the txt file of the recipe
     def deleteRecipe(self):
@@ -639,7 +727,7 @@ class RecipesMenu(tk.Frame):
 
         self.userBeerImage = tk.Label(self.botLeftFrame, image=self.img)
         self.userBeerImage.image =self.img
-        self.userBeerImage.grid(row=9, column=3)
+        self.userBeerImage.grid(row=0, column=10, padx=(450, 0))
 
 
     # schrijft path van custom beer image voor recept naar eerst lijn recept file, if provideede with currect path also
