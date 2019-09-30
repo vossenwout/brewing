@@ -709,6 +709,13 @@ class RecipesMenu(tk.Frame):
             self.beernameEntry.delete(0, tk.END)
             self.beernameEntry.configure(state='disabled')
             self.beerBrewingRecipeInfo.configure(state='disabled')
+            self.beerImage = Image.open('images/nobeerimage.jpg')
+            self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
+            self.img = ImageTk.PhotoImage(self.beerImage)
+
+            self.userBeerImage = tk.Label(self.topLeftFrame, image=self.img)
+            self.userBeerImage.image = self.img
+            self.userBeerImage.grid(row=0, column=10, padx=(450, 0))
             self.clearAllRecipeWidgets()
             self.makeRecipeInactive()
         else:
@@ -725,9 +732,10 @@ class RecipesMenu(tk.Frame):
         self.beerImage = self.beerImage.resize((200, 200), Image.ANTIALIAS)
         self.img = ImageTk.PhotoImage(self.beerImage)
 
-        self.userBeerImage = tk.Label(self.botLeftFrame, image=self.img)
-        self.userBeerImage.image =self.img
+        self.userBeerImage = tk.Label(self.topLeftFrame, image=self.img)
+        self.userBeerImage.image = self.img
         self.userBeerImage.grid(row=0, column=10, padx=(450, 0))
+
 
 
     # schrijft path van custom beer image voor recept naar eerst lijn recept file, if provideede with currect path also
